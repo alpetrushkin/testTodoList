@@ -19,19 +19,26 @@ type TaskType = {
 }
 
 export const AppTodoList: React.FC<AppTodoListType> = (props) => {
-   const [newTitle, setNewTitle] = useState('')
+   const [newTitle, setNewTitle] = useState<string>('')
+   const [error, setError] = useState<boolean>(false)
 
    const onClickDeletedHandler = (id: string) => {
       props.deletedTask(id)
    }
 
    const onClickInputHandler = (newTitle: string) => {
-      props.addTitle(newTitle)
+      const trimmedTitle = newTitle.trim()
+      if (trimmedTitle) {
+         props.addTitle(trimmedTitle)
+      } else {
+         setError(true)
+      }
       setNewTitle('')
    }
 
    const onChangeInputHandler = (event: ChangeEvent<HTMLInputElement>) => {
-      setNewTitle(event.currentTarget.value)
+      if (error) setError(false)
+         setNewTitle(event.currentTarget.value)
    }
 
    const onKeyDownHandler = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -43,11 +50,20 @@ export const AppTodoList: React.FC<AppTodoListType> = (props) => {
       props.filterTasked(filter)
    }
 
+   const errorMessage = <div style={{color: 'hotpink'}}>Title is error required!!!</div>
+
    return (
       <div>
          <h3>{props.title}</h3>
-         <input onKeyDown={onKeyDownHandler} value={newTitle} onChange={onChangeInputHandler}/>
+         <input
+            className={error ? 'error' : ''}
+            onKeyDown={onKeyDownHandler}
+            value={newTitle}
+            onChange={onChangeInputHandler}
+         />
          <button onClick={() => onClickInputHandler(newTitle)}>+</button>
+         {/*{error ? <div className='error-message'>Title is required!</div> : ''}*/}
+         {error && errorMessage}
          <ul>
             {
                props.task.map((el) => {
